@@ -22,13 +22,6 @@ Student Attendance Tracker provides a straightforward interface to manage studen
 - CSS3
 - JavaScript
 
-## Getting Started
-
-1. Clone or download this repository.
-2. Open the project folder.
-3. Open `studentAttendence.html` in your web browser.
-4. Start managing student attendance.
-
 ## Purpose
 
 This project was developed to practise frontend development and JavaScript-based interactive functionality through a practical student attendance management application.
