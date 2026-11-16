@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Attendance Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      
+      --present-bg: #dcfce7;
+      --present-text: #166534;
+      --present-btn: #22c55e;
+      --present-btn-hover: #16a34a;
+      
+      --absent-bg: #fee2e2;
+      --absent-text: #991b1b;
+      --absent-btn: #ef4444;
+      --absent-btn-hover: #dc2626;
+      
+      --notmarked-bg: #fef3c7;
+      --notmarked-text: #92400e;
+      
+      --border-color: #e5e7eb;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding: 0 8px;
+    }
+
+    .header-titles h1 {
+      font-size: 1.8rem;
+      color: #0f172a;
+      margin-bottom: 4px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-titles p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .header-date {
+      text-align: right;
+      color: var(--text-muted);
+    }
+
+    .header-date .date-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .header-date #currentDate {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Dashboard Layout */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Card Style */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+      padding: 28px;
+    }
+    
+    .card-header {
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      color: #0f172a;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .card .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Student List */
+    .student-header-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 180px 140px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .student-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 180px 140px;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+
+    .student-row:last-child {
+      border-bottom: none;
+    }
+
+    .student-row:hover {
+      background-color: #f8fafc;
+    }
+
+    .col-roll {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    
+    .col-name {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 1.05rem;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      color: white;
+      font-family: inherit;
+    }
+
+    .btn-present { background-color: var(--present-btn); }
+    .btn-present:hover { background-color: var(--present-btn-hover); transform: translateY(-1px); }
+    
+    .btn-absent { background-color: var(--absent-btn); }
+    .btn-absent:hover { background-color: var(--absent-btn-hover); transform: translateY(-1px); }
+
+    .btn-primary { 
+      background-color: var(--primary); 
+      padding: 14px 16px; 
+      width: 100%; 
+      font-size: 1rem; 
+      margin-bottom: 12px;
+    }
+    .btn-primary:hover { 
+      background-color: var(--primary-hover); 
+      transform: translateY(-1px); 
+    }
+
+    .btn-danger { 
+      background-color: white; 
+      color: var(--text-main); 
+      border: 1px solid var(--border-color); 
+      padding: 14px 16px; 
+      width: 100%; 
+      font-size: 1rem;
+    }
+    .btn-danger:hover { 
+      background-color: #f1f5f9; 
+      transform: translateY(-1px); 
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .badge-present { background-color: var(--present-bg); color: var(--present-text); }
+    .badge-absent { background-color: var(--absent-bg); color: var(--absent-text); }
+    .badge-notmarked { background-color: var(--notmarked-bg); color: var(--notmarked-text); }
+
+    /* Summary Card */
+    .summary-card {
+      position: sticky;
+      top: 40px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 24px 0;
+    }
+
+    .progress-container {
+      margin: 24px 0;
+    }
+    
+    .progress-header {
+      margin-bottom: 12px;
+    }
+
+    .progress-title {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .progress-value {
+      font-weight: 800;
+      color: var(--text-main);
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .progress-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background-color: var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Results Section */
+    #resultsSection {
+      display: none;
+      margin-top: 24px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-header-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 140px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 8px;
+    }
+
+    .result-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 140px;
+      align-items: center;
+      padding: 12px 16px;
+      background-color: #fef2f2;
+      border: 1px solid #fee2e2;
+      margin-bottom: 8px;
+      border-radius: 8px;
+    }
+
+    .success-msg {
+      background-color: var(--present-bg);
+      color: var(--present-text);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border: 1px solid #bbf7d0;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .summary-card {
+        position: static;
+      }
+      .right-section {
+        order: -1;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .header-date {
+        text-align: left;
+      }
+      .student-header-row {
+        display: none;
+      }
+      .student-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 20px 16px;
+      }
+      .student-row > div:nth-child(1) {
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+      .student-row > div:nth-child(1)::before {
+        content: "Roll No: ";
+      }
+      .student-row > div:nth-child(2) {
+        font-size: 1.15rem;
+        font-weight: 600;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-header">
+      <div class="header-titles">
+        <h1>🎓 Student Attendance Tracker</h1>
+        <p>Manage and track student attendance</p>
+      </div>
+      <div class="header-date">
+        <div class="date-label">Today's Attendance</div>
+        <div id="currentDate"></div>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      
+      <!-- Left Side: Student List -->
+      <div class="left-section">
+        <div class="card">
+          <div class="card-header">
+            <h2>Student Attendance</h2>
+            <p class="subtitle">Mark each student's attendance for today</p>
+          </div>
+          
+          <div class="student-header-row">
+            <div>Roll No.</div>
+            <div>Student</div>
+            <div>Attendance</div>
+            <div>Status</div>
+          </div>
+          <div id="studentList"></div>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="resultsSection">
+          <div class="card">
+            <h2>⚠️ Absent Students</h2>
+            <div id="resultsDisplay"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Summary Card -->
+      <div class="right-section">
+        <div class="card summary-card">
+          <h2>📊 Attendance Summary</h2>
+          
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Total Students</span>
+              <span class="stat-value" id="totalCount">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">🟢 Present</span>
+              <span class="stat-value" id="presentCount" style="color: var(--present-text);">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">🔴 Absent</span>
+              <span class="stat-value" id="absentCount" style="color: var(--absent-text);">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">🟡 Not Marked</span>
+              <span class="stat-value" id="notMarkedCount" style="color: var(--notmarked-text);">0</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="progress-container">
+            <div class="progress-header">
+              <span class="progress-title">Attendance Rate</span>
+              <span class="progress-value" id="percentageText">0%</span>
+              <span class="progress-subtitle">Today's attendance rate</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <button id="showResultsBtn" class="btn-primary" onclick="showResults()">Show Attendance Result</button>
+          <button id="resetBtn" class="btn-danger" onclick="resetAttendance()">Reset Attendance</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const students = [
+      { roll: 1, name: "Bhoomi" },
+      { roll: 2, name: "Priya" },
+      { roll: 3, name: "Neha" },
+      { roll: 4, name: "Rahul" },
+      { roll: 5, name: "Vikram" },
+      { roll: 6, name: "Simran" },
+      { roll: 7, name: "Kabir" },
+      { roll: 8, name: "Ayesha" },
+      { roll: 9, name: "Ravi" },
+      { roll: 10, name: "Meera" }
+    ];
+
+    const presentStatus = {};  
+    const statusElements = {}; 
+
+    // Set Current Date dynamically
+    const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById("currentDate").innerText = new Date().toLocaleDateString('en-US', dateOptions);
+    
+    document.getElementById("totalCount").innerText = students.length;
+
+    function updateCounts() {
+      let present = 0;
+      let absent = 0;
+      let notMarked = 0;
+
+      for (let i = 0; i < students.length; i++) {
+        if (presentStatus[students[i].roll] === true) {
+          present++;
+          statusElements[students[i].roll].innerHTML = "<span class='badge badge-present'>🟢 Present</span>";
+        } else if (presentStatus[students[i].roll] === false) {
+          absent++;
+          statusElements[students[i].roll].innerHTML = "<span class='badge badge-absent'>🔴 Absent</span>";
+        } else {
+          notMarked++;
+          statusElements[students[i].roll].innerHTML = "<span class='badge badge-notmarked'>🟡 Not Marked</span>";
+        }
+      }
+      
+      document.getElementById("presentCount").innerText = present;
+      document.getElementById("absentCount").innerText = absent;
+      document.getElementById("notMarkedCount").innerText = notMarked;
+      
+      let percentage = students.length > 0 ? Math.round((present / students.length) * 100) : 0;
+      document.getElementById("percentageText").innerText = percentage + "%";
+      document.getElementById("progressFill").style.width = percentage + "%";
+    }
+
+    function resetAttendance() {
+      for (let i = 0; i < students.length; i++) {
+        presentStatus[students[i].roll] = undefined; 
+      }
+      document.getElementById("resultsSection").style.display = "none";
+      updateCounts();
+    }
+
+    function showResults() {
+      const resultsDisplay = document.getElementById("resultsDisplay");
+      resultsDisplay.innerHTML = "";
+      const resultsSection = document.getElementById("resultsSection");
+      resultsSection.style.display = "block";
+
+      let absentStudents = 0;
+      let resultsHTML = "";
+
+      for (let i = 0; i < students.length; i++) {
+        if (presentStatus[students[i].roll] !== true) {
+          absentStudents++;
+          resultsHTML += 
+            "<div class='result-row'>" +
+              "<div class='col-roll'>" + (students[i].roll < 10 ? "0" : "") + students[i].roll + "</div>" +
+              "<div class='col-name'>" + students[i].name + "</div>" +
+              "<div><span class='badge badge-absent'>🔴 Absent</span></div>" +
+            "</div>";
+        }
+      }
+
+      if (absentStudents === 0) {
+        resultsDisplay.innerHTML = "<div class='success-msg'>🎉 Everyone is present!</div>";
+      } else {
+        const headerHTML = 
+          "<div class='results-header-row'>" +
+            "<div>Roll No.</div>" +
+            "<div>Student</div>" +
+            "<div>Status</div>" +
+          "</div>";
+        resultsDisplay.innerHTML = headerHTML + resultsHTML;
+      }
+
+      // Smooth scroll to the results section
+      resultsSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+      });
+    }
+
+    const studentList = document.getElementById("studentList");
+
+    for (let i = 0; i < students.length; i++) {
+      const student = students[i];
+
+      const row = document.createElement("div");
+      row.className = "student-row";
+
+      const col1 = document.createElement("div");
+      col1.className = "col-roll";
+      col1.innerText = (student.roll < 10 ? "0" : "") + student.roll;
+
+      const col2 = document.createElement("div");
+      col2.className = "col-name";
+      col2.innerText = student.name;
+
+      const col3 = document.createElement("div");
+      col3.className = "btn-group";
+
+      const presentBtn = document.createElement("button");
+      presentBtn.innerText = "Present";
+      presentBtn.className = "btn-present";
+      presentBtn.onclick = function () {
+        presentStatus[student.roll] = true;
+        updateCounts();
+      };
+
+      const absentBtn = document.createElement("button");
+      absentBtn.innerText = "Absent";
+      absentBtn.className = "btn-absent";
+      absentBtn.onclick = function () {
+        presentStatus[student.roll] = false;
+        updateCounts();
+      };
+
+      col3.appendChild(presentBtn);
+      col3.appendChild(absentBtn);
+
+      const col4 = document.createElement("div");
+      const statusText = document.createElement("div");
+      statusElements[student.roll] = statusText;
+      col4.appendChild(statusText);
+
+      row.appendChild(col1);
+      row.appendChild(col2);
+      row.appendChild(col3);
+      row.appendChild(col4);
+      studentList.appendChild(row);
+    }
+
+    updateCounts();
+
+  </script>
+
+</body>
+</html>
